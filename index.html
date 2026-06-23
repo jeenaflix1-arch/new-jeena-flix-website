@@ -1,1 +1,531 @@
-https://broad-bird-4050.jeenaflix1.workers.dev/
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>JeenaFlix — Stream Movies, Series & Live TV</title>
+<meta name="description" content="JeenaFlix — premium streaming for Movies, Series, Live TV, Sports, Kids and News." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
+<style>
+  :root{
+    --bg:#0b0b0f; --bg2:#141418; --card:#1c1c22; --text:#f5f5f7; --muted:#9aa0a6;
+    --brand:#e50914; --brand2:#ff2d3b; --accent:#ffcc00;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img{display:block}
+  .brand{font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:28px;color:var(--brand)}
+  .brand span{color:#fff}
+  header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:linear-gradient(180deg,rgba(0,0,0,.85),rgba(0,0,0,.35));border-bottom:1px solid rgba(255,255,255,.06)}
+  .nav{display:flex;align-items:center;gap:18px;padding:14px 4vw}
+  .nav nav{display:flex;gap:14px;flex-wrap:wrap;margin-left:10px}
+  .nav nav a{color:#d5d5d8;font-size:14px;font-weight:500;opacity:.85;cursor:pointer}
+  .nav nav a:hover{color:#fff;opacity:1}
+  .nav .spacer{flex:1}
+  .search{position:relative;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);padding:8px 12px;border-radius:999px}
+  .search input{background:transparent;border:0;outline:0;color:#fff;width:220px;font-size:14px}
+  .search input::placeholder{color:#aaa}
+  .search .cnt{font-size:11px;color:#9aa0a6;margin-left:4px}
+
+  /* hero */
+  .hero{position:relative;height:78vh;min-height:480px;max-height:760px;overflow:hidden}
+  .hero .bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:saturate(1.05);transition:background-image .6s ease}
+  .hero .shade{position:absolute;inset:0;background:
+    linear-gradient(90deg,rgba(0,0,0,.9) 0%,rgba(0,0,0,.55) 40%,rgba(0,0,0,0) 75%),
+    linear-gradient(0deg,var(--bg) 0%,rgba(0,0,0,0) 45%)}
+  .hero .info{position:absolute;left:4vw;bottom:9vh;max-width:620px;z-index:2}
+  .hero .tag{display:inline-block;background:var(--brand);color:#fff;font-weight:700;padding:4px 10px;border-radius:4px;font-size:12px;letter-spacing:1px;text-transform:uppercase}
+  .hero h1{font-size:clamp(28px,5vw,56px);margin:14px 0 10px;line-height:1.05;font-weight:800}
+  .hero p{color:#d6d6da;font-size:15px;line-height:1.5;max-width:560px}
+  .hero .btns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;font-weight:700;padding:11px 22px;border-radius:6px;font-size:14px}
+  .btn-play{background:#fff;color:#000}
+  .btn-play:hover{background:#e6e6e6}
+  .btn-ghost{background:rgba(110,110,120,.55);color:#fff}
+  .btn-ghost:hover{background:rgba(110,110,120,.75)}
+
+  /* rows */
+  .rows{padding:30px 0 60px}
+  .row{margin:30px 0}
+  .row h2{margin:0 4vw 12px;font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px}
+  .row h2 .dot{width:4px;height:18px;background:var(--brand);border-radius:2px}
+  .scroller{display:flex;gap:10px;overflow-x:auto;padding:6px 4vw 14px;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .scroller::-webkit-scrollbar{display:none}
+  .card{flex:0 0 auto;width:180px;aspect-ratio:2/3;background:var(--card);border-radius:8px;overflow:hidden;position:relative;cursor:pointer;scroll-snap-align:start;transition:transform .25s ease, box-shadow .25s ease}
+  .card:hover{transform:scale(1.06);z-index:5;box-shadow:0 12px 30px rgba(0,0,0,.6)}
+  .card.live{width:240px;aspect-ratio:16/10}
+  .card img{width:100%;height:100%;object-fit:cover;background:#222}
+  .card .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand),#7a0610);color:#fff;font-weight:800;font-size:14px;padding:8px;text-align:center;font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
+  .card .cap{position:absolute;left:0;right:0;bottom:0;padding:8px 10px;background:linear-gradient(0deg,rgba(0,0,0,.92),transparent);font-size:12px;font-weight:600;line-height:1.2}
+  .card .badge{position:absolute;top:6px;left:6px;background:var(--brand);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.5px}
+
+  .skel{background:linear-gradient(90deg,#1a1a20,#26262d,#1a1a20);background-size:200% 100%;animation:sk 1.4s linear infinite}
+  @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+  /* search results overlay */
+  .results{display:none;padding:24px 4vw 60px}
+  .results.open{display:block}
+  .results h2{margin:6px 0 18px;font-size:24px}
+  .results .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .results .tab{padding:7px 14px;border-radius:999px;background:#1a1a20;color:#ddd;font-size:13px;cursor:pointer;border:1px solid rgba(255,255,255,.06)}
+  .results .tab.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+  .grid .card{width:100%}
+  .grid .card.live{width:100%;aspect-ratio:16/10}
+  .empty{padding:60px 0;text-align:center;color:#999}
+
+  /* player modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+  .modal.open{display:flex}
+  .modal .box{width:min(1100px,100%);background:#000;border-radius:12px;overflow:hidden;position:relative}
+  .modal video{width:100%;display:block;aspect-ratio:16/9;background:#000}
+  .modal .close{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;border:0;font-size:20px;cursor:pointer;z-index:5}
+  .modal .meta{padding:14px 18px;background:#111;color:#ddd}
+  .modal .meta h3{margin:0 0 6px;font-size:18px}
+  .modal .meta .url{font-size:11px;color:#888;word-break:break-all}
+  .modal .err{padding:14px 18px;color:#ffb4b4;font-size:13px;display:none;white-space:pre-wrap}
+  .loading{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:#fff;background:rgba(0,0,0,.55);z-index:3}
+  .spinner{width:46px;height:46px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .episodes{padding:10px 18px 18px;background:#111;max-height:230px;overflow:auto}
+  .ep{display:flex;gap:10px;padding:8px;border-radius:6px;cursor:pointer;align-items:center}
+  .ep:hover{background:#1d1d24}
+  .ep .n{width:54px;text-align:center;color:#888;font-weight:700;font-size:12px}
+  .ep .t{flex:1;font-size:13px;color:#ddd}
+
+  footer{padding:30px 4vw;color:#777;font-size:13px;border-top:1px solid rgba(255,255,255,.06);text-align:center}
+  footer .brand{font-size:22px}
+
+  @media (max-width:640px){
+    .card{width:130px}
+    .card.live{width:190px}
+    .nav nav{display:none}
+    .search input{width:140px}
+    .hero{height:64vh}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a href="#home" class="brand" style="display:flex;align-items:center;gap:10px" onclick="closeSearch()"><img src="https://www.jeenaflix.com/DOC-20260325-WA0063..png" alt="JeenaFlix" style="height:36px;width:auto" onerror="this.style.display='none'"/>JEENA<span>FLIX</span></a>
+    <nav>
+      <a onclick="goto('home')">Home</a>
+      <a onclick="goto('movies')">Movies</a>
+      <a onclick="goto('series')">Series</a>
+      <a onclick="goto('live')">Live TV</a>
+      <a onclick="goto('sports')">Sports</a>
+      <a onclick="goto('kids')">Kids</a>
+      <a onclick="goto('news')">News</a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="search">
+      <span>🔍</span>
+      <input id="q" placeholder="Search movies, series, channels…" autocomplete="off" />
+      <span class="cnt" id="cnt"></span>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="home">
+  <div class="bg" id="heroBg"></div>
+  <div class="shade"></div>
+  <div class="info">
+    <span class="tag">JeenaFlix Original</span>
+    <h1 id="heroTitle">Premium Streaming, Reimagined.</h1>
+    <p id="heroDesc">Movies, Series, Live TV, Sports, Kids and more — all in one beautiful place. Cinema-grade playback on every screen.</p>
+    <div class="btns">
+      <button class="btn btn-play" id="heroPlay">▶ Play</button>
+      <button class="btn btn-ghost" onclick="goto('movies')">ⓘ More Info</button>
+    </div>
+  </div>
+</section>
+
+<main class="rows" id="rows"></main>
+
+<section class="results" id="results">
+  <h2 id="resultsTitle">Search results</h2>
+  <div class="tabs" id="resultsTabs">
+    <div class="tab active" data-t="all">All</div>
+    <div class="tab" data-t="vod">Movies</div>
+    <div class="tab" data-t="series">Series</div>
+    <div class="tab" data-t="live">Live TV</div>
+  </div>
+  <div class="grid" id="resultsGrid"></div>
+</section>
+
+<footer>
+  <div class="brand" style="display:flex;align-items:center;gap:10px;justify-content:center"><img src="https://www.jeenaflix.com/DOC-20260325-WA0063..png" alt="JeenaFlix" style="height:32px;width:auto" onerror="this.style.display='none'"/>JEENA<span>FLIX</span></div>
+  <p>© 2026 JeenaFlix. All content streamed via your provider. Built with HLS.js.</p>
+</footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="box">
+    <button class="close" id="closeBtn" aria-label="Close">✕</button>
+    <div style="position:relative">
+      <video id="video" controls playsinline></video>
+      <div class="loading" id="loading"><div class="spinner"></div></div>
+    </div>
+    <div class="meta">
+      <h3 id="modalTitle">Now Playing</h3>
+      <div class="url" id="modalUrl"></div>
+    </div>
+    <div class="err" id="errBox"></div>
+    <div class="episodes" id="episodes" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   JeenaFlix — Standalone IPTV / VOD client (Xtream Codes)
+   ========================================================= */
+/* ---------------------------------------------------------------
+ * PROXY_BASE: your Cloudflare Worker URL + "/proxy/"
+ * Deploy worker.js to Cloudflare Workers, then paste the URL here.
+ * Example: "https://jeenaflix-proxy.yourname.workers.dev/proxy/"
+ * The trailing "/proxy/" is REQUIRED.
+ * --------------------------------------------------------------- */
+const PROXY_BASE = "https://broad-bird-4050.jeenaflix1.workers.dev/proxy/";
+
+const ORIGIN = "http://ogold.org:8080";
+const USER   = "farukh121";
+const PASS   = "01123072";
+const HOST   = PROXY_BASE + ORIGIN;                 // proxied origin
+const API    = `${HOST}/player_api.php?username=${USER}&password=${PASS}`;
+
+const PER_ROW = 18;
+const MAX_CATS = { vod: 8, series: 6, live: 8 };
+
+const SECTIONS = [
+  { id:"movies", title:"🎬 Movies",          kind:"vod",    match:/movie|bollywood|hollywood|hindi|english|punjabi|tamil|telugu|4k|hd|cinema|south|pakistani|netflix|prime|disney/i },
+  { id:"series", title:"📺 Series & Shows",  kind:"series", match:/./ },
+  { id:"live",   title:"📡 Live TV",         kind:"live",   match:/entertainment|general|hd|fhd|urdu|hindi|english|pakistan|india/i },
+  { id:"sports", title:"🏆 Sports",          kind:"live",   match:/sport|cricket|football|fifa|wwe|t20|ipl|hockey|tennis|wrestling|boxing|world\s*cup/i },
+  { id:"kids",   title:"🧸 Kids",            kind:"live",   match:/kid|cartoon|baby|nick|disney|cocomelon/i, kindAlt:"series", matchAlt:/kid|cartoon|baby/i },
+  { id:"news",   title:"📰 News",            kind:"live",   match:/news|geo news|ary news|samaa|dunya|bbc|cnn|aljazeera|abp|aaj tak/i },
+  { id:"ent",    title:"🎭 Entertainment",   kind:"live",   match:/entertainment|drama|hum|ary digital|geo entertainment|colors|star|sony|zee/i },
+  { id:"islamic",title:"🕌 Islamic",         kind:"live",   match:/islamic|quran|makkah|madinah|hadith/i },
+  { id:"4k",     title:"💎 4K Ultra HD",     kind:"vod",    match:/4k|uhd|ultra/i }
+];
+
+const $ = s => document.querySelector(s);
+const rowsEl = $("#rows");
+const resultsEl = $("#results");
+const resultsGrid = $("#resultsGrid");
+const resultsTitle = $("#resultsTitle");
+
+async function api(action){
+  const r = await fetch(`${API}&action=${action}`);
+  return r.json();
+}
+
+let DATA = { liveCats:[], vodCats:[], seriesCats:[] };
+/* Global search index — populated as categories load */
+const INDEX = []; // {kind, item, name, lname}
+
+function indexAdd(kind, item){
+  const name = item.name || item.title || "";
+  INDEX.push({ kind, item, name, lname: name.toLowerCase() });
+}
+
+async function loadAll(){
+  const [lc, vc, sc] = await Promise.all([
+    api("get_live_categories"),
+    api("get_vod_categories"),
+    api("get_series_categories")
+  ]);
+  DATA.liveCats = lc||[]; DATA.vodCats = vc||[]; DATA.seriesCats = sc||[];
+  buildSections();
+  // Build full search index in background for instant search across EVERYTHING
+  buildSearchIndex();
+}
+
+/* ---------- Build sections ---------- */
+function pickCats(cats, regex, max){
+  const matched = cats.filter(c => regex.test(c.category_name));
+  return (matched.length ? matched : cats).slice(0, max);
+}
+
+function buildSections(){
+  rowsEl.innerHTML = "";
+  for(const sec of SECTIONS){
+    const wrap = document.createElement("section");
+    wrap.id = sec.id;
+    wrap.innerHTML = `<h2 style="margin:34px 4vw 8px;font-size:22px;font-weight:800;letter-spacing:.3px">${sec.title}</h2>`;
+    rowsEl.appendChild(wrap);
+
+    let cats = [];
+    if(sec.kind==="vod")    cats = pickCats(DATA.vodCats,    sec.match, MAX_CATS.vod);
+    if(sec.kind==="series") cats = pickCats(DATA.seriesCats, sec.match, MAX_CATS.series);
+    if(sec.kind==="live")   cats = pickCats(DATA.liveCats,   sec.match, MAX_CATS.live);
+
+    cats.forEach(cat => addCategoryRow(wrap, sec.kind, cat));
+
+    if(sec.kindAlt){
+      const altCats = pickCats(DATA[sec.kindAlt==="vod"?"vodCats":"seriesCats"], sec.matchAlt, 4);
+      altCats.forEach(cat => addCategoryRow(wrap, sec.kindAlt, cat));
+    }
+  }
+  setTimeout(setupHero, 600);
+}
+
+function addCategoryRow(parent, kind, cat){
+  const row = document.createElement("div");
+  row.className = "row";
+  row.innerHTML = `
+    <h2><span class="dot"></span>${cat.category_name}</h2>
+    <div class="scroller" data-kind="${kind}" data-cat="${cat.category_id}">
+      ${Array.from({length:8}).map(()=>`<div class="card skel"></div>`).join("")}
+    </div>`;
+  parent.appendChild(row);
+  loadCategory(row.querySelector(".scroller"), kind, cat.category_id);
+}
+
+async function loadCategory(scroller, kind, catId){
+  const action =
+    kind==="vod"    ? "get_vod_streams" :
+    kind==="series" ? "get_series" :
+                      "get_live_streams";
+  try{
+    const items = await api(`${action}&category_id=${catId}`);
+    const list = (items||[]).slice(0, PER_ROW);
+    if(!list.length){ scroller.parentElement.remove(); return; }
+    scroller.innerHTML = "";
+    list.forEach(it => scroller.appendChild(makeCard(kind, it)));
+  }catch(e){
+    scroller.parentElement.remove();
+  }
+}
+
+/* ---------- Build full search index (all items, all categories) ---------- */
+async function buildSearchIndex(){
+  // Fetch the complete catalogues with one call each (Xtream supports no category_id = all)
+  const tasks = [
+    api("get_live_streams").then(arr=>(arr||[]).forEach(it=>indexAdd("live", it))).catch(()=>{}),
+    api("get_vod_streams").then(arr=>(arr||[]).forEach(it=>indexAdd("vod", it))).catch(()=>{}),
+    api("get_series").then(arr=>(arr||[]).forEach(it=>indexAdd("series", it))).catch(()=>{}),
+  ];
+  await Promise.all(tasks);
+  $("#cnt").textContent = INDEX.length ? `· ${INDEX.length.toLocaleString()} titles` : "";
+}
+
+/* ---------- Cards (with strong fallback artwork) ---------- */
+function posterFor(kind, it){
+  if(kind==="series") return it.cover || it.cover_big || it.stream_icon || "";
+  return it.stream_icon || it.cover || it.movie_image || "";
+}
+function initials(name){
+  return (name||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase() || "JF";
+}
+
+function makeCard(kind, it){
+  const card = document.createElement("div");
+  card.className = "card" + (kind==="live"?" live":"");
+  const name = it.name || it.title || "Untitled";
+  const img = posterFor(kind, it);
+  const safeName = name.replace(/"/g,'&quot;');
+  const ph = `<div class="ph"><div><div style="font-size:34px;line-height:1;margin-bottom:8px">${initials(name)}</div><div style="font-size:11px;font-weight:600;font-family:Inter,sans-serif;letter-spacing:0;opacity:.9">${safeName}</div></div></div>`;
+  card.innerHTML = `
+    ${img ? `<img loading="lazy" referrerpolicy="no-referrer" src="${img}" alt="${safeName}" onerror="this.outerHTML=\`${ph.replace(/`/g,'\\`')}\`" />` : ph}
+    ${kind==="live"?'<span class="badge">● LIVE</span>':''}
+    <div class="cap">${name}</div>
+  `;
+  card.onclick = () => openPlayer(kind, it);
+  return card;
+}
+
+/* ---------- Player ---------- */
+const modal = $("#modal");
+const video = $("#video");
+const loading = $("#loading");
+const errBox = $("#errBox");
+const episodesEl = $("#episodes");
+let hls = null;
+
+$("#closeBtn").onclick = closePlayer;
+modal.addEventListener("click", e => { if(e.target===modal) closePlayer(); });
+document.addEventListener("keydown", e => { if(e.key==="Escape") closePlayer(); });
+
+function closePlayer(){
+  modal.classList.remove("open");
+  try{ video.pause(); }catch(_){}
+  video.removeAttribute("src"); video.load();
+  if(hls){ hls.destroy(); hls=null; }
+  episodesEl.style.display="none"; episodesEl.innerHTML="";
+  errBox.style.display="none"; errBox.textContent="";
+}
+
+function buildUrl(kind, it, episodeId){
+  if(kind==="live")   return `${HOST}/live/${USER}/${PASS}/${it.stream_id}.m3u8`;
+  if(kind==="vod")    return `${HOST}/movie/${USER}/${PASS}/${it.stream_id}.${it.container_extension||"mp4"}`;
+  if(kind==="series") return `${HOST}/series/${USER}/${PASS}/${episodeId}.mp4`;
+}
+
+function playUrl(url, title){
+  $("#modalTitle").textContent = title;
+  $("#modalUrl").textContent = url;
+  errBox.style.display="none";
+  loading.style.display="flex";
+  if(hls){ hls.destroy(); hls=null; }
+
+  const isHls = /\.m3u8(\?|$)/i.test(url);
+  video.removeAttribute("src"); video.load();
+
+  if(isHls && window.Hls && Hls.isSupported()){
+    hls = new Hls({ enableWorker:true, lowLatencyMode:true });
+    hls.loadSource(url);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, ()=> video.play().catch(()=>{}));
+    hls.on(Hls.Events.ERROR, (_,d)=>{
+      if(d.fatal){ showError(`Playback error: ${d.details}\n\nDirect URL (try in VLC):\n${url}`); }
+    });
+  } else {
+    video.src = url;
+    video.play().catch(()=> showError(`This file/codec can't be played in browser.\nOpen in VLC:\n${url}`));
+  }
+  video.onplaying = ()=> loading.style.display="none";
+  video.onwaiting = ()=> loading.style.display="flex";
+  video.onerror   = ()=> showError(`Failed to load stream.\nTry VLC:\n${url}`);
+}
+
+function showError(msg){
+  loading.style.display="none";
+  errBox.style.display="block";
+  errBox.textContent = msg;
+}
+
+async function openPlayer(kind, it){
+  modal.classList.add("open");
+  const title = it.name || it.title || "Now Playing";
+  if(kind==="series"){
+    $("#modalTitle").textContent = title;
+    $("#modalUrl").textContent = "Loading episodes…";
+    loading.style.display="flex";
+    try{
+      const info = await (await fetch(`${API}&action=get_series_info&series_id=${it.series_id}`)).json();
+      const eps = [];
+      Object.keys(info.episodes||{}).forEach(season=>{
+        info.episodes[season].forEach(ep => eps.push({...ep, season}));
+      });
+      if(!eps.length){ showError("No episodes available."); return; }
+      episodesEl.style.display="block";
+      episodesEl.innerHTML = `<div style="font-weight:700;margin:4px 4px 8px;color:#fff">Episodes (${eps.length})</div>` +
+        eps.slice(0,120).map((ep,i)=>`
+          <div class="ep" data-id="${ep.id}" data-ext="${ep.container_extension||'mp4'}" data-title="${(ep.title||'Episode '+(i+1)).replace(/"/g,'&quot;')}">
+            <div class="n">S${ep.season}·E${ep.episode_num||i+1}</div>
+            <div class="t">${ep.title||'Episode '+(i+1)}</div>
+          </div>`).join("");
+      episodesEl.querySelectorAll(".ep").forEach(el=>{
+        el.onclick = ()=>{
+          const url = `${HOST}/series/${USER}/${PASS}/${el.dataset.id}.${el.dataset.ext}`;
+          playUrl(url, `${title} — ${el.dataset.title}`);
+        };
+      });
+      const first = eps[0];
+      playUrl(`${HOST}/series/${USER}/${PASS}/${first.id}.${first.container_extension||'mp4'}`, `${title} — ${first.title||'Episode 1'}`);
+    }catch(e){
+      showError("Could not load series info.");
+    }
+    return;
+  }
+  playUrl(buildUrl(kind,it), title);
+}
+
+/* ---------- Hero ---------- */
+async function setupHero(){
+  try{
+    const cat = DATA.vodCats.find(c=>/2025|2026|4k|bollywood/i.test(c.category_name)) || DATA.vodCats[0];
+    if(!cat) return;
+    const list = await api(`get_vod_streams&category_id=${cat.category_id}`);
+    const withPoster = (list||[]).filter(m=>m.stream_icon);
+    if(!withPoster.length) return;
+    const pick = withPoster[Math.floor(Math.random()*Math.min(20,withPoster.length))];
+    $("#heroBg").style.backgroundImage = `url("${pick.stream_icon}")`;
+    $("#heroTitle").textContent = pick.name;
+    $("#heroDesc").textContent = `Featured on JeenaFlix • ${cat.category_name}. Tap play to start streaming in stunning quality.`;
+    $("#heroPlay").onclick = ()=> openPlayer("vod", pick);
+  }catch(_){}
+}
+
+/* ---------- Search (real-time, full catalogue) ---------- */
+let searchFilter = "all";
+let lastQuery = "";
+
+function runSearch(){
+  const q = lastQuery;
+  if(!q){ closeSearch(); return; }
+  rowsEl.style.display = "none";
+  document.querySelector(".hero").style.display = "none";
+  resultsEl.classList.add("open");
+  resultsTitle.textContent = `Search results for "${q}"`;
+
+  // case-insensitive substring + simple word-prefix scoring
+  const ql = q.toLowerCase();
+  const matches = [];
+  for(const e of INDEX){
+    if(searchFilter!=="all" && e.kind!==searchFilter) continue;
+    const i = e.lname.indexOf(ql);
+    if(i === -1) continue;
+    // score: startsWith > word boundary > anywhere
+    const score = e.lname.startsWith(ql) ? 0 : (/\b/.test(e.lname[i-1]||" ") ? 1 : 2);
+    matches.push({score, e});
+    if(matches.length > 400) break;
+  }
+  matches.sort((a,b)=> a.score-b.score || a.e.name.length-b.e.name.length);
+  resultsGrid.innerHTML = "";
+  if(!matches.length){
+    resultsGrid.innerHTML = `<div class="empty" style="grid-column:1/-1">No matches for "<b>${q}</b>". Try a different word.</div>`;
+    return;
+  }
+  const frag = document.createDocumentFragment();
+  matches.slice(0,200).forEach(m => frag.appendChild(makeCard(m.e.kind, m.e.item)));
+  resultsGrid.appendChild(frag);
+}
+
+function closeSearch(){
+  resultsEl.classList.remove("open");
+  rowsEl.style.display = "";
+  document.querySelector(".hero").style.display = "";
+  $("#q").value = "";
+  lastQuery = "";
+}
+
+let dbT;
+$("#q").addEventListener("input", e=>{
+  clearTimeout(dbT);
+  const q = e.target.value.trim();
+  dbT = setTimeout(()=>{
+    lastQuery = q;
+    runSearch();
+  }, 120);
+});
+
+document.querySelectorAll("#resultsTabs .tab").forEach(t=>{
+  t.onclick = ()=>{
+    document.querySelectorAll("#resultsTabs .tab").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    searchFilter = t.dataset.t;
+    runSearch();
+  };
+});
+
+function goto(id){
+  closeSearch();
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:"smooth"});
+}
+
+/* go */
+loadAll().catch(()=>{
+  rowsEl.innerHTML = `<p style="padding:40px 4vw;color:#ffb4b4">Failed to connect to the streaming server. Check your internet or try later.</p>`;
+});
+</script>
+</body>
+</html>
