@@ -175,7 +175,7 @@
     </div>
     <div class="meta">
       <h3 id="modalTitle">Now Playing</h3>
-      <div class="url" id="modalUrl"></div>
+      <div class="url" id="modalUrl" style="display:none"></div>
     </div>
     <div class="err" id="errBox"></div>
     <div class="episodes" id="episodes" style="display:none"></div>
@@ -186,19 +186,35 @@
 /* =========================================================
    JeenaFlix — Standalone IPTV / VOD client (Xtream Codes)
    ========================================================= */
-/* ---------------------------------------------------------------
- * PROXY_BASE: your Cloudflare Worker URL + "/proxy/"
- * Deploy worker.js to Cloudflare Workers, then paste the URL here.
- * Example: "https://jeenaflix-proxy.yourname.workers.dev/proxy/"
- * The trailing "/proxy/" is REQUIRED.
- * --------------------------------------------------------------- */
-const PROXY_BASE = "https://broad-bird-4050.jeenaflix1.workers.dev/proxy/";
+const GATEWAY_HOST = "https://project--6d62bd45-a830-4359-bd93-ee71a1252200.lovable.app/api/public/iptv";
+const DIRECT_HOST = "http://ogold.org:8080";
+const USER = "farukh121";
+const PASS = "01123072";
+const API_CONCURRENCY = 4;
 
-const ORIGIN = "http://ogold.org:8080";
-const USER   = "farukh121";
-const PASS   = "01123072";
-const HOST   = PROXY_BASE + ORIGIN;                 // proxied origin
-const API    = `${HOST}/player_api.php?username=${USER}&password=${PASS}`;
+function sameAppGateway(){
+  const h = location.hostname;
+  return h === "localhost" || h === "127.0.0.1" || h.endsWith(".lovable.app");
+}
+
+function uniqueHosts(hosts){
+  return hosts.filter((h,i,a)=>h && a.indexOf(h)===i);
+}
+
+function gatewayHosts(){
+  if(location.protocol === "file:") return uniqueHosts([DIRECT_HOST, GATEWAY_HOST]);
+  if(sameAppGateway()) return uniqueHosts(["/api/public/iptv", GATEWAY_HOST, DIRECT_HOST]);
+  if(location.protocol === "https:") return uniqueHosts([GATEWAY_HOST]);
+  return uniqueHosts([DIRECT_HOST, GATEWAY_HOST]);
+}
+
+let HOST = gatewayHosts()[0];
+let API  = `${HOST}/player_api.php?username=${USER}&password=${PASS}`;
+
+function activateHost(host){
+  HOST = host;
+  API = `${HOST}/player_api.php?username=${USER}&password=${PASS}`;
+}
 
 const PER_ROW = 18;
 const MAX_CATS = { vod: 8, series: 6, live: 8 };
@@ -221,9 +237,56 @@ const resultsEl = $("#results");
 const resultsGrid = $("#resultsGrid");
 const resultsTitle = $("#resultsTitle");
 
+let activeApiCalls = 0;
+const apiQueue = [];
+const apiCache = new Map();
+
+function queuedFetch(url){
+  return new Promise((resolve, reject)=>{
+    apiQueue.push({url, resolve, reject});
+    drainApiQueue();
+  });
+}
+
+function drainApiQueue(){
+  while(activeApiCalls < API_CONCURRENCY && apiQueue.length){
+    const job = apiQueue.shift();
+    activeApiCalls++;
+    fetch(job.url)
+      .then(job.resolve, job.reject)
+      .finally(()=>{
+        activeApiCalls--;
+        drainApiQueue();
+      });
+  }
+}
+
 async function api(action){
-  const r = await fetch(`${API}&action=${action}`);
-  return r.json();
+  if(apiCache.has(action)) return apiCache.get(action);
+
+  const promise = (async()=>{
+    for(const host of gatewayHosts()){
+      try{
+        const url = `${host}/player_api.php?username=${USER}&password=${PASS}&action=${action}`;
+        const r = await queuedFetch(url);
+        if(!r.ok) continue;
+        const text = await r.text();
+        if(!text.trim()) continue;
+        const data = JSON.parse(text);
+        const hasData = Array.isArray(data) ? data.length > 0 : Object.keys(data||{}).length > 0;
+        if(hasData){
+          activateHost(host);
+          return data;
+        }
+      }catch(_){
+        // Try next available gateway.
+      }
+    }
+    return [];
+  })();
+
+  apiCache.set(action, promise);
+  return promise;
 }
 
 let DATA = { liveCats:[], vodCats:[], seriesCats:[] };
@@ -242,6 +305,10 @@ async function loadAll(){
     api("get_series_categories")
   ]);
   DATA.liveCats = lc||[]; DATA.vodCats = vc||[]; DATA.seriesCats = sc||[];
+  if(!DATA.liveCats.length && !DATA.vodCats.length && !DATA.seriesCats.length){
+    rowsEl.innerHTML = `<p style="padding:40px 4vw;color:#ffb4b4">Data load نہیں ہوا۔ Gateway online ہوتے ہی Movies, Sports اور Live TV خود آ جائیں گے۔</p>`;
+    return;
+  }
   buildSections();
   // Build full search index in background for instant search across EVERYTHING
   buildSearchIndex();
@@ -370,7 +437,7 @@ function buildUrl(kind, it, episodeId){
 
 function playUrl(url, title){
   $("#modalTitle").textContent = title;
-  $("#modalUrl").textContent = url;
+  $("#modalUrl").textContent = "";
   errBox.style.display="none";
   loading.style.display="flex";
   if(hls){ hls.destroy(); hls=null; }
@@ -384,15 +451,15 @@ function playUrl(url, title){
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, ()=> video.play().catch(()=>{}));
     hls.on(Hls.Events.ERROR, (_,d)=>{
-      if(d.fatal){ showError(`Playback error: ${d.details}\n\nDirect URL (try in VLC):\n${url}`); }
+      if(d.fatal){ showError(`Playback error: ${d.details}. Please try another channel.`); }
     });
   } else {
     video.src = url;
-    video.play().catch(()=> showError(`This file/codec can't be played in browser.\nOpen in VLC:\n${url}`));
+    video.play().catch(()=> showError(`This file/codec can't be played in this browser. Please try another title.`));
   }
   video.onplaying = ()=> loading.style.display="none";
   video.onwaiting = ()=> loading.style.display="flex";
-  video.onerror   = ()=> showError(`Failed to load stream.\nTry VLC:\n${url}`);
+  video.onerror   = ()=> showError(`Failed to load stream. Please try another channel or title.`);
 }
 
 function showError(msg){
@@ -406,10 +473,10 @@ async function openPlayer(kind, it){
   const title = it.name || it.title || "Now Playing";
   if(kind==="series"){
     $("#modalTitle").textContent = title;
-    $("#modalUrl").textContent = "Loading episodes…";
+    $("#modalUrl").textContent = "";
     loading.style.display="flex";
     try{
-      const info = await (await fetch(`${API}&action=get_series_info&series_id=${it.series_id}`)).json();
+      const info = await api(`get_series_info&series_id=${it.series_id}`);
       const eps = [];
       Object.keys(info.episodes||{}).forEach(season=>{
         info.episodes[season].forEach(ep => eps.push({...ep, season}));
