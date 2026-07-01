@@ -9,7 +9,6 @@
 <link rel="preconnect" href="http://zooox.top:8080" crossorigin>
 <link rel="dns-prefetch" href="http://zooox.top:8080">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js" defer></script>
 <style>
 :root{
@@ -154,12 +153,12 @@ main{padding:0 0 110px 0;min-height:100vh}
 .player{position:fixed;inset:0;background:#000;z-index:100;display:none;flex-direction:column;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;contain:strict}
 .player.open{display:flex}
 .player video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
-.player .pcontrols{position:absolute;inset:0;z-index:12;display:flex;flex-direction:column;justify-content:space-between;padding:20px 26px calc(20px + env(safe-area-inset-bottom));opacity:1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.4) 14%,transparent 30%,transparent 62%,rgba(0,0,0,.55) 82%,rgba(0,0,0,.92) 100%);transition:opacity .25s cubic-bezier(.4,0,.2,1);will-change:opacity}
+.player .pcontrols{position:absolute;inset:0;z-index:12;display:flex;flex-direction:column;justify-content:space-between;padding:18px 22px calc(18px + env(safe-area-inset-bottom));opacity:1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.35) 15%,transparent 32%,transparent 68%,rgba(0,0,0,.55) 88%,rgba(0,0,0,.85) 100%);transition:opacity .28s cubic-bezier(.4,0,.2,1);will-change:opacity}
 .player.ui-hidden .pcontrols{opacity:0;pointer-events:none}
 .player.locked .pcontrols{opacity:0;pointer-events:none}
 .player .ptop,.player .pbottom,.player .center-row{pointer-events:auto}
 .player .ptop{display:flex;align-items:center;gap:10px}
-.player .ptop .ptitle-top{flex:1;min-width:0;font-weight:800;font-size:19px;letter-spacing:.15px;text-shadow:0 2px 8px rgba(0,0,0,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px;color:#fff}
+.player .ptop .ptitle-top{flex:1;min-width:0;font-weight:700;font-size:17px;letter-spacing:.2px;text-shadow:0 1px 5px rgba(0,0,0,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
 .player .ptop .ptop-right{display:flex;gap:2px;flex-shrink:0}
 .player .pbtn{width:42px;height:42px;border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;transition:background .15s ease,transform .1s ease;border:0;color:#fff;cursor:pointer;touch-action:manipulation;flex-shrink:0}
 .player .pbtn:hover{background:rgba(255,255,255,.15)}
@@ -176,13 +175,13 @@ main{padding:0 0 110px 0;min-height:100vh}
 .player .center-btn .n10{position:absolute;top:50%;left:50%;transform:translate(-50%,-38%);font-size:11px;font-weight:800;pointer-events:none;letter-spacing:.5px}
 .player .pbottom{display:flex;flex-direction:column;gap:6px}
 .player .seek{height:22px;width:100%;position:relative;cursor:pointer;touch-action:none;display:flex;align-items:center;z-index:20}
-.player .seek::before{content:"";position:absolute;left:0;right:0;top:50%;height:4px;transform:translateY(-50%);background:rgba(255,255,255,.3);border-radius:999px;transition:height .15s cubic-bezier(.4,0,.2,1)}
+.player .seek::before{content:"";position:absolute;left:0;right:0;top:50%;height:3px;transform:translateY(-50%);background:rgba(255,255,255,.28);border-radius:999px;transition:height .15s cubic-bezier(.4,0,.2,1)}
 .player .seek:hover::before,.player .seek.dragging::before{height:6px}
-.player .seek .buf{position:absolute;left:0;top:50%;height:4px;transform:translateY(-50%);background:rgba(255,255,255,.45);border-radius:999px;width:0;pointer-events:none;transition:height .15s cubic-bezier(.4,0,.2,1)}
+.player .seek .buf{position:absolute;left:0;top:50%;height:3px;transform:translateY(-50%);background:rgba(255,255,255,.45);border-radius:999px;width:0;pointer-events:none;transition:height .15s cubic-bezier(.4,0,.2,1)}
 .player .seek:hover .buf,.player .seek.dragging .buf{height:6px}
-.player .seek .fill{position:absolute;left:0;top:50%;height:4px;transform:translateY(-50%);background:#e50914;border-radius:999px;width:0;pointer-events:none;transition:height .15s cubic-bezier(.4,0,.2,1)}
+.player .seek .fill{position:absolute;left:0;top:50%;height:3px;transform:translateY(-50%);background:#e50914;border-radius:999px;width:0;pointer-events:none;transition:height .15s cubic-bezier(.4,0,.2,1)}
 .player .seek:hover .fill,.player .seek.dragging .fill{height:6px}
-.player .seek .thumb{position:absolute;top:50%;left:0;transform:translate(-50%,-50%) scale(0);width:15px;height:15px;background:#e50914;border-radius:50%;box-shadow:0 0 0 4px rgba(229,9,20,.25);transition:transform .15s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.player .seek .thumb{position:absolute;top:50%;left:0;transform:translate(-50%,-50%) scale(0);width:14px;height:14px;background:#e50914;border-radius:50%;transition:transform .15s cubic-bezier(.4,0,.2,1);pointer-events:none}
 .player .seek:hover .thumb,.player .seek.dragging .thumb{transform:translate(-50%,-50%) scale(1)}
 .player .seek.dragging .thumb{transform:translate(-50%,-50%) scale(1.4)}
 .player .prow{display:flex;align-items:center;gap:4px;width:100%;padding-top:2px}
@@ -204,10 +203,8 @@ main{padding:0 0 110px 0;min-height:100vh}
 .player .seek-ripple.left{left:0;border-top-right-radius:50%;border-bottom-right-radius:50%}
 .player .seek-ripple.right{right:0;border-top-left-radius:50%;border-bottom-left-radius:50%}
 .player .seek-ripple svg{width:34px;height:34px}
-/* Netflix-style "Please wait" indicator (replaces circular spinner) */
-.player .please-wait{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:15px;font-weight:600;letter-spacing:.4px;padding:10px 22px;background:rgba(0,0,0,.6);border-radius:26px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:none;z-index:30;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.7);animation:pw 1.4s ease-in-out infinite}
-.player.loading .please-wait{display:block}
-@keyframes pw{0%,100%{opacity:.75}50%{opacity:1}}
+.player .loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60px;height:60px;border:4px solid rgba(255,255,255,.18);border-top-color:#e50914;border-radius:50%;animation:spin .9s linear infinite;display:none;z-index:30;pointer-events:none}
+.player.loading .loading{display:block}
 /* Netflix-style settings menu */
 .psheet{position:absolute;right:20px;bottom:96px;background:rgba(20,20,20,.96);backdrop-filter:blur(20px);border-radius:6px;padding:6px 0;z-index:40;min-width:220px;display:none;box-shadow:0 8px 32px rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.08)}
 .psheet.open{display:block;animation:sheetIn .18s cubic-bezier(.4,0,.2,1)}
@@ -311,7 +308,7 @@ main{padding:0 0 110px 0;min-height:100vh}
 <!-- PLAYER -->
 <div id="player" class="player">
   <video id="video" playsinline preload="auto"></video>
-  <div class="please-wait" id="pleaseWait">Please wait…</div>
+  <div class="loading"></div>
 
   <div class="tap-zones" id="tapZones">
     <div class="tap-zone left" data-side="left"></div>
@@ -429,39 +426,13 @@ main{padding:0 0 110px 0;min-height:100vh}
 </nav>
 
 <script>
-
-/* ====================== CLIENT HARDENING ====================== */
-(function(){
-  try{
-    document.addEventListener('contextmenu', e=>{ e.preventDefault(); }, {capture:true});
-    document.addEventListener('selectstart', e=>{
-      var t=e.target; if(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) return;
-      e.preventDefault();
-    }, {capture:true});
-    document.addEventListener('dragstart', e=>e.preventDefault(), {capture:true});
-    document.addEventListener('copy', e=>{
-      var t=e.target; if(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) return;
-      e.preventDefault();
-    });
-    document.addEventListener('keydown', function(e){
-      var k=e.key, c=e.ctrlKey||e.metaKey, s=e.shiftKey;
-      if(k==='F12') { e.preventDefault(); return false; }
-      if(c && s && (k==='I'||k==='i'||k==='J'||k==='j'||k==='C'||k==='c')) { e.preventDefault(); return false; }
-      if(c && (k==='U'||k==='u'||k==='S'||k==='s')) { e.preventDefault(); return false; }
-    }, {capture:true});
-  }catch(_){}
-})();
-
 /* ====================== CONFIG ====================== */
-/* credentials encoded (client-side obfuscation only) */
-const _k=(function(){var a=[106,102,120,64,50,48,50,54,36,110,101,116,102,108,105,120,35,115,101,99,117,114,101];return String.fromCharCode.apply(null,a);})();
-function _dx(b){try{var s=atob(b),o='';for(var i=0;i<s.length;i++)o+=String.fromCharCode(s.charCodeAt(i)^_k.charCodeAt(i%_k.length));return o;}catch(e){return '';}}
-const XTREAM = Object.freeze({
-  get server(){return _dx("EAkXL0oeRllUVF1EXlw=");},
-  get user(){return _dx("DAcKNVlYAwQV");},
-  get pass(){return _dx("WldJcgEABQQ=");},
-  port: 80
-});
+const XTREAM = {
+  server: "zooox.top:8080",
+  port: 80,
+  user: "farukh121",
+  pass: "01123072",
+};
 const API_BASE = `http://${XTREAM.server}/player_api.php?username=${XTREAM.user}&password=${XTREAM.pass}`;
 const STREAM_BASE = `http://${XTREAM.server}`;
 // The Xtream origin sends Access-Control-Allow-Origin:* so we hit it directly.
@@ -1025,23 +996,16 @@ async function playItem(id){
       hls = new Hls({
         autoStartLoad: true,
         lowLatencyMode: true,
-        backBufferLength: 20,
-        maxBufferLength: 18,
-        maxMaxBufferLength: 30,
-        maxBufferSize: 30*1000*1000,
+        backBufferLength: 30,
+        maxBufferLength: 20,
+        maxMaxBufferLength: 40,
+        maxBufferSize: 40*1000*1000,
         startLevel: -1,
-        startFragPrefetch: true,
-        progressive: true,
-        testBandwidth: false,
-        abrEwmaDefaultEstimate: 2200000,
-        abrBandWidthFactor: 0.9,
-        manifestLoadingTimeOut: 8000,
-        manifestLoadingMaxRetry: 2,
-        manifestLoadingRetryDelay: 500,
-        levelLoadingTimeOut: 8000,
-        levelLoadingMaxRetry: 2,
-        fragLoadingTimeOut: 14000,
-        fragLoadingMaxRetry: 4,
+        abrEwmaDefaultEstimate: 1600000,
+        manifestLoadingTimeOut: 10000,
+        manifestLoadingMaxRetry: 3,
+        levelLoadingTimeOut: 10000,
+        fragLoadingTimeOut: 16000,
       });
       hls.loadSource(url);
       hls.attachMedia(video);
@@ -1172,7 +1136,6 @@ video.addEventListener('progress', ()=>{
   try{ const end = video.buffered.end(video.buffered.length-1); bufEl.style.width = Math.max(0, Math.min(100, end/dur*100))+'%'; }catch(e){}
 });
 video.addEventListener('click', e=>e.preventDefault());
-['touchstart','touchmove','wheel'].forEach(ev=>document.addEventListener(ev, function(){}, {passive:true}));
 
 function seekToClientX(clientX, commit=true){
   const r = seekEl.getBoundingClientRect();
